@@ -1,8 +1,6 @@
 :root {
-  /* soft sage, like the green on the puzzle box */
   --bg: #f7ead0;
   --text: #1f2a22;
-  --muted: #4f5e53;
   /* dark stained frame */
   --frame: #33271f;
   /* board surface */
@@ -13,7 +11,7 @@
   --gold: #c9a46e;
   /* ring around today's cells */
   --mark: #a8743b;
-  --serif: 'Fraunces', Georgia, serif;
+  --serif: ui-serif, Georgia, 'Times New Roman', serif;
 }
 
 * {
@@ -69,7 +67,6 @@ input[type='date'] {
 
 #count-label {
   font-size: 14px;
-  color: var(--muted);
 }
 
 /* Board: dark wooden frame around an SVG drawn by app.js.
@@ -143,7 +140,6 @@ footer {
   padding: 0 16px 24px;
   text-align: center;
   font-size: 14px;
-  color: var(--muted);
 }
 
 footer a {
@@ -153,7 +149,6 @@ footer a {
 #cooldown {
   margin: 0;
   text-align: center;
-  color: var(--muted);
 }
 
 button {
