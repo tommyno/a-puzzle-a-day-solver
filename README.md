@@ -6,9 +6,8 @@ Pick a date to see how many solutions it has, then get hints one piece at a time
 
 https://a-puzzle-a-day-solver.vercel.app
 
-Plain HTML, CSS and JavaScript with no build step. The solver is in `solver.js`.
+## Development
 
-```sh
-pnpm install
-pnpm dev
-```
+Plain HTML, CSS and JavaScript with no build step. The solver is in `scripts/solver.js`.
+
+Run locally with `npx serve`.
