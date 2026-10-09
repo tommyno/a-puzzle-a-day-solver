@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark frame -->
+  <rect width="32" height="32" rx="7" fill="#33271f"/>
+  <!-- Pieces, 3x3 cells -->
+  <g fill="#c9975e">
+    <rect x="4" y="4" width="15.5" height="7" rx="1.5"/>
+    <rect x="4" y="4" width="7" height="15.5" rx="1.5"/>
+  </g>
+  <rect x="21" y="4" width="7" height="24" rx="1.5" fill="#a0603a"/>
+  <rect x="4" y="21" width="15.5" height="7" rx="1.5" fill="#7c5236"/>
+  <!-- The open date cell -->
+  <rect x="13.1" y="13.1" width="5.8" height="5.8" rx="1" fill="#f7ead0" stroke="#a8743b" stroke-width="1.2"/>
+</svg>
