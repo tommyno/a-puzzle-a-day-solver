@@ -206,6 +206,12 @@ input[type='date'] {
   gap: 10px;
 }
 
+#cooldown {
+  margin: 0;
+  text-align: center;
+  color: var(--muted);
+}
+
 button {
   flex: 1;
   font: inherit;

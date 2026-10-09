@@ -1,5 +1,6 @@
 import { BOARD, PIECES, SIZE, solve } from './solver.js';
 
+const COOLDOWN = 60; // seconds to wait between hints
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 // Wood stain for each piece, light to dark like the real puzzle
 const WOODS = ['#c9975e', '#a0603a', '#7c5236', '#b88352', '#5f4130', '#93765b', '#8a4f33', '#a98a69'];
@@ -11,11 +12,14 @@ const boardEl = document.getElementById('board');
 const logo = boardEl.querySelector('.logo');
 const hintButton = document.getElementById('hint');
 const otherButton = document.getElementById('other');
+const cooldownText = document.getElementById('cooldown');
 
 let month, day;
 let solutions = [];
 let solutionIndex = 0; // which solution the hints come from
 let hintsShown = 0;
+let cooldown = 0; // seconds left before the next hint
+let timer;
 
 // Points on a quarter circle, as [sin, cos] from 0° to 90°
 const ARC = [0, 22.5, 45, 67.5, 90].map((deg) => {
@@ -60,6 +64,7 @@ function onDateChange() {
   solutions = solve(month, day);
   solutionIndex = 0;
   hintsShown = 0;
+  stopCooldown();
 
   countNumber.textContent = solutions.length;
   // e.g. "October 9" or "9. oktober", depending on the browser's locale
@@ -70,13 +75,31 @@ function onDateChange() {
 
 function onHint() {
   hintsShown++;
+  startCooldown();
   render();
+}
+
+// Count down once per second, then enable the hint button again
+function startCooldown() {
+  cooldown = COOLDOWN;
+  clearInterval(timer);
+  timer = setInterval(() => {
+    cooldown--;
+    if (cooldown <= 0) clearInterval(timer);
+    renderControls();
+  }, 1000);
+}
+
+function stopCooldown() {
+  cooldown = 0;
+  clearInterval(timer);
 }
 
 // Switch to the next solution (wraps around) and clear the board
 function onOther() {
   solutionIndex = (solutionIndex + 1) % solutions.length;
   hintsShown = 0;
+  stopCooldown();
   render();
 }
 
@@ -147,12 +170,21 @@ function render() {
     }
   });
   boardEl.replaceChildren(...cells, logo);
+  renderControls();
+}
 
-  hintButton.disabled = hintsShown >= solution.length;
+function renderControls() {
+  const solution = solutions[solutionIndex] ?? [];
+  const allShown = hintsShown >= solution.length;
+
+  hintButton.disabled = allShown || cooldown > 0;
   hintButton.textContent = `Hint ${hintsShown}/${PIECES.length}`;
 
   otherButton.disabled = solutions.length < 2;
   otherButton.textContent = `Solution ${solutionIndex + 1}/${solutions.length} ↻`;
+
+  cooldownText.hidden = allShown || cooldown <= 0;
+  cooldownText.textContent = `Try to solve it yourself. Wait ${cooldown} s before next hint.`;
 }
 
 dateInput.value = today();
