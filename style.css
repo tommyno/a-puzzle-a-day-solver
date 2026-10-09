@@ -95,6 +95,8 @@ input[type='date'] {
 }
 
 .cell {
+  --join: calc(var(--gap) + 1px); /* how far a cell stretches into the gap */
+  position: relative; /* keep cells painting in DOM order, even when masked */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,10 +148,6 @@ input[type='date'] {
 /* Stretch into the gap and square off the corners where a cell
    touches another cell of the same piece. The extra 1px overlap
    hides hairline seams at fractional pixel sizes. */
-.cell {
-  --join: calc(var(--gap) + 1px);
-  position: relative; /* keep cells painting in DOM order, even when clipped */
-}
 .cell.join-right {
   margin-right: calc(-1 * var(--join));
   border-top-right-radius: 0;
@@ -172,6 +170,22 @@ input[type='date'] {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+/* Rounded inner corners: mask a quarter circle out of the corner
+   that stretching filled in (see the inner-* classes in app.js) */
+.cell.covered {
+  mask:
+    radial-gradient(circle at 0 0, #0000 var(--tl, 0), #000 0),
+    radial-gradient(circle at 100% 0, #0000 var(--tr, 0), #000 0),
+    radial-gradient(circle at 100% 100%, #0000 var(--br, 0), #000 0),
+    radial-gradient(circle at 0 100%, #0000 var(--bl, 0), #000 0);
+  mask-composite: intersect;
+}
+.cell.inner-tl { --tl: var(--join); }
+.cell.inner-tr { --tr: var(--join); }
+.cell.inner-br { --br: var(--join); }
+.cell.inner-bl { --bl: var(--join); }
+
 /* Newly placed piece drops in */
 .cell.new {
   animation: drop 0.25s ease-out;

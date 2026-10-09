@@ -1,7 +1,7 @@
 import { BOARD, PIECES, SIZE, solve } from './solver.js';
 
 const COOLDOWN = 60; // seconds to wait between hints
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS = BOARD.slice(0, 2).flat().filter(Boolean); // 'Jan' … 'Dec'
 // Wood stain for each piece, light to dark like the real puzzle
 const WOODS = ['#c9975e', '#a0603a', '#7c5236', '#b88352', '#5f4130', '#93765b', '#8a4f33', '#a98a69'];
 
@@ -20,32 +20,6 @@ let solutionIndex = 0; // which solution the hints come from
 let hintsShown = 0;
 let cooldown = 0; // seconds left before the next hint
 let timer;
-
-// Points on a quarter circle, as [sin, cos] from 0° to 90°
-const ARC = [0, 22.5, 45, 67.5, 90].map((deg) => {
-  const rad = (deg * Math.PI) / 180;
-  return [Math.sin(rad).toFixed(3), Math.cos(rad).toFixed(3)];
-});
-
-// Clip path that cuts a rounded notch (radius --join) into the given
-// corners of a cell, so the piece gets rounded inner corners
-function innerCornerClip({ tl, tr, br, bl }) {
-  const point = (right, bottom, dx, dy) => {
-    const x = right ? `calc(100% - ${dx} * var(--join))` : `calc(${dx} * var(--join))`;
-    const y = bottom ? `calc(100% - ${dy} * var(--join))` : `calc(${dy} * var(--join))`;
-    return `${x} ${y}`;
-  };
-  // Walk clockwise; `flip` swaps the arc direction to match
-  const arc = (right, bottom, flip) =>
-    ARC.map(([sin, cos]) => (flip ? point(right, bottom, cos, sin) : point(right, bottom, sin, cos)));
-
-  return `polygon(${[
-    ...(tl ? arc(false, false, false) : ['0 0']),
-    ...(tr ? arc(true, false, true) : ['100% 0']),
-    ...(br ? arc(true, true, false) : ['100% 100%']),
-    ...(bl ? arc(false, true, true) : ['0 100%']),
-  ].join(', ')})`;
-}
 
 // Today's date as YYYY-MM-DD in local time
 function today() {
@@ -142,7 +116,7 @@ function render() {
       const same = (dr, dc) => {
         const r = row + dr;
         const c = col + dc;
-        return r >= 0 && r < SIZE && c >= 0 && c < SIZE && pieceAt[r * SIZE + c] === piece;
+        return c >= 0 && c < SIZE && pieceAt[r * SIZE + c] === piece;
       };
 
       // Join with neighbours of the same piece so it reads as one shape
@@ -158,15 +132,10 @@ function render() {
       // Stretching two ways also fills the gap corner between them. Where
       // the diagonal cell isn't the same piece, that's an inner corner:
       // cut it out again with a rounded notch.
-      const inner = {
-        tl: up && left && !same(-1, -1),
-        tr: up && right && !same(-1, 1),
-        br: down && right && !same(1, 1),
-        bl: down && left && !same(1, -1),
-      };
-      if (inner.tl || inner.tr || inner.br || inner.bl) {
-        cell.style.clipPath = innerCornerClip(inner);
-      }
+      cell.classList.toggle('inner-tl', up && left && !same(-1, -1));
+      cell.classList.toggle('inner-tr', up && right && !same(-1, 1));
+      cell.classList.toggle('inner-br', down && right && !same(1, 1));
+      cell.classList.toggle('inner-bl', down && left && !same(1, -1));
     }
   });
   boardEl.replaceChildren(...cells, logo);

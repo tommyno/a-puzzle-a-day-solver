@@ -76,27 +76,19 @@ function allPlacements() {
   return placements;
 }
 
-const PLACEMENTS = allPlacements();
-
 // Group placements by their first (lowest) cell. When the search fills the
 // first empty cell, only placements starting at that cell can cover it.
+// Cells are in sorted order (see normalize), so the first cell is cells[0].
 const PLACEMENTS_BY_FIRST_CELL = Array.from({ length: SIZE * SIZE }, () => []);
-for (const p of PLACEMENTS) {
-  PLACEMENTS_BY_FIRST_CELL[Math.min(...p.cells)].push(p);
-}
-
-// Index of the cell with the given label, e.g. 'Oct' or '17'.
-export function cellIndex(label) {
-  const flat = BOARD.flat();
-  return flat.indexOf(label);
+for (const p of allPlacements()) {
+  PLACEMENTS_BY_FIRST_CELL[p.cells[0]].push(p);
 }
 
 // Find all solutions that leave `month` and `day` uncovered.
 // Each solution is a list of 8 placements.
 export function solve(month, day) {
-  const filled = BOARD.flat().map((label) => label === null);
-  filled[cellIndex(month)] = true;
-  filled[cellIndex(day)] = true;
+  // Off-board cells and the date cells count as already filled
+  const filled = BOARD.flat().map((label) => label === null || label === month || label === day);
 
   const used = PIECES.map(() => false);
   const current = [];
