@@ -4,19 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>A-Puzzle-A-Day Solver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main>
-    <h1>A-Puzzle-A-Day</h1>
+    <header>
+      <input type="date" id="date" aria-label="Date">
+      <p class="count">
+        <span id="count-number"></span>
+        <span id="count-label"></span>
+      </p>
+    </header>
 
-    <input type="date" id="date">
-    <p id="count"></p>
+    <div class="frame">
+      <div id="board">
+        <div class="logo">A-Puzzle-A-Day</div>
+      </div>
+    </div>
 
-    <div id="board"></div>
-
-    <button id="hint">Hint</button>
-    <button id="other">Other solution</button>
+    <div class="buttons">
+      <button id="hint" class="primary">Hint</button>
+      <button id="other">Other solution</button>
+    </div>
   </main>
 
   <script type="module" src="app.js"></script>
