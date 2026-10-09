@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #faf7f2;
+  color: #333;
+}
+
+main {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+input,
+button {
+  font: inherit;
+  padding: 8px 14px;
+}
+
+#board {
+  display: grid;
+  gap: 3px;
+  margin: 16px 0;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ead9bd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* The month and day to leave uncovered */
+.cell.target {
+  background: #fff;
+  outline: 2px solid #b5651d;
+  font-weight: bold;
+}
+
+/* Hide the label under a placed piece */
+.cell.covered {
+  color: transparent;
+}
+
+button {
+  cursor: pointer;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "a-puzzle-a-day-solver",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "serve .",
+    "start": "serve ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.6"
+  }
+}
