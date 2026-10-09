@@ -1,24 +1,20 @@
 :root {
-  --bg: #d3dccd;       /* soft sage, like the green on the puzzle box */
+  /* soft sage, like the green on the puzzle box */
+  --bg: #d3dccd;
   --text: #1f2a22;
-  --muted: #56655a;
+  --muted: #4f5e53;
   --line: #a9b8a6;
-  --frame: #33271f;    /* dark stained frame */
-  --maple: #ecd9b4;    /* board surface */
-  --engrave: #6e4f33;  /* labels burned into the board */
-  --gold: #c9a46e;     /* engraved logo text */
-  --mark: #a8743b;     /* ring around today's cells */
-  --gap: 4px;
+  /* dark stained frame */
+  --frame: #33271f;
+  /* board surface */
+  --maple: #ecd9b4;
+  /* labels burned into the board */
+  --engrave: #6e4f33;
+  /* engraved logo text */
+  --gold: #c9a46e;
+  /* ring around today's cells */
+  --mark: #a8743b;
   --serif: 'Fraunces', Georgia, serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #121814;
-    --text: #e6ebe3;
-    --muted: #94a396;
-    --line: #334036;
-  }
 }
 
 * {
@@ -56,8 +52,7 @@ input[type='date'] {
   border: 1.5px solid var(--line);
   border-radius: 10px;
   background: #fff;
-  color: #1f2a22;
-  color-scheme: light;
+  color: var(--text);
 }
 
 .count {
@@ -78,7 +73,8 @@ input[type='date'] {
   color: var(--muted);
 }
 
-/* Board: dark wooden frame with a 7x7 grid inside */
+/* Board: dark wooden frame around an SVG drawn by app.js.
+   Sizes inside the SVG are in board units (a cell is 100 wide). */
 .frame {
   padding: 14px;
   background: var(--frame);
@@ -86,132 +82,56 @@ input[type='date'] {
 }
 
 #board {
-  container-type: inline-size; /* lets cells size things with cqw */
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(7, 1fr);
-  gap: var(--gap);
+  display: block;
+  width: 100%;
   aspect-ratio: 1;
+  user-select: none;
 }
 
 .cell {
-  --join: calc(var(--gap) + 1px); /* how far a cell stretches into the gap */
-  position: relative; /* keep cells painting in DOM order, even when masked */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  font-size: 4.2cqw;
-  font-weight: 600;
-  color: var(--engrave);
-  user-select: none;
-  background: var(--maple);
+  fill: var(--maple);
 }
 
 /* The month and day to leave uncovered */
 .cell.target {
-  background: #f7ead0;
-  color: var(--frame);
+  fill: #f7ead0;
+  stroke: var(--mark);
+}
+
+.label {
+  font-size: 31px;
+  font-weight: 600;
+  fill: var(--engrave);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.label.target {
   font-weight: 800;
-  box-shadow: inset 0 0 0 3px var(--mark);
+  fill: var(--frame);
 }
-
-/* A cell covered by a piece: hide the label underneath */
-.cell.covered {
-  --cell: calc((100cqw - 6 * var(--gap)) / 7);
-
-  color: transparent;
-
-  /* Wood grain: one board-sized texture, shifted per cell so the
-     grain runs on unbroken across a whole piece */
-  background-color: var(--wood);
-  background-image:
-    repeating-linear-gradient(
-      calc(var(--grain-angle) + 2deg),
-      transparent 0 6px,
-      rgba(50, 25, 5, 0.09) 6px 7px,
-      transparent 7px 11px,
-      rgba(50, 25, 5, 0.06) 11px 13px
-    ),
-    repeating-linear-gradient(
-      calc(var(--grain-angle) - 1deg),
-      transparent 0 17px,
-      rgba(255, 240, 210, 0.08) 17px 19px
-    );
-  background-size: 100cqw 100cqw;
-  /* --shift-x/y make up for a cell stretched to the left or up */
-  background-position:
-    calc(var(--shift-x, 0px) - var(--col) * (var(--cell) + var(--gap)))
-    calc(var(--shift-y, 0px) - var(--row) * (var(--cell) + var(--gap)));
-}
-
-/* Stretch into the gap and square off the corners where a cell
-   touches another cell of the same piece. The extra 1px overlap
-   hides hairline seams at fractional pixel sizes. */
-.cell.join-right {
-  margin-right: calc(-1 * var(--join));
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.cell.join-down {
-  margin-bottom: calc(-1 * var(--join));
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.cell.join-left {
-  --shift-x: var(--join);
-  margin-left: calc(-1 * var(--join));
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.cell.join-up {
-  --shift-y: var(--join);
-  margin-top: calc(-1 * var(--join));
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-/* Rounded inner corners: mask a quarter circle out of the corner
-   that stretching filled in (see the inner-* classes in app.js) */
-.cell.covered {
-  mask:
-    radial-gradient(circle at 0 0, #0000 var(--tl, 0), #000 0),
-    radial-gradient(circle at 100% 0, #0000 var(--tr, 0), #000 0),
-    radial-gradient(circle at 100% 100%, #0000 var(--br, 0), #000 0),
-    radial-gradient(circle at 0 100%, #0000 var(--bl, 0), #000 0);
-  mask-composite: intersect;
-}
-.cell.inner-tl { --tl: var(--join); }
-.cell.inner-tr { --tr: var(--join); }
-.cell.inner-br { --br: var(--join); }
-.cell.inner-bl { --bl: var(--join); }
 
 /* Newly placed piece drops in */
-.cell.new {
+.piece.new {
   animation: drop 0.25s ease-out;
 }
 
 @keyframes drop {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-14px);
   }
 }
 
 /* Name engraved in the empty corner, like on the real board */
 .logo {
-  grid-area: 7 / 4 / 8 / 8;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 1cqw;
   font-family: var(--serif);
-  font-size: 4.4cqw;
+  font-size: 33px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gold);
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+  fill: var(--gold);
+  text-anchor: end;
+  dominant-baseline: central;
 }
 
 /* Buttons */
@@ -223,7 +143,7 @@ input[type='date'] {
 footer {
   padding: 0 16px 24px;
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
 }
 

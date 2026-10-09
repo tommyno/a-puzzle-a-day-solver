@@ -1,18 +1,35 @@
-import { BOARD, PIECES, SIZE, solve } from './solver.js';
+import { BOARD, PIECES, SIZE, solve } from "./solver.js";
 
 const COOLDOWN = 60; // seconds to wait between hints
 const MONTHS = BOARD.slice(0, 2).flat().filter(Boolean); // 'Jan' … 'Dec'
-// Wood stain for each piece, light to dark like the real puzzle
-const WOODS = ['#c9975e', '#a0603a', '#7c5236', '#b88352', '#5f4130', '#93765b', '#8a4f33', '#a98a69'];
 
-const dateInput = document.getElementById('date');
-const countNumber = document.getElementById('count-number');
-const countLabel = document.getElementById('count-label');
-const boardEl = document.getElementById('board');
-const logo = boardEl.querySelector('.logo');
-const hintButton = document.getElementById('hint');
-const otherButton = document.getElementById('other');
-const cooldownText = document.getElementById('cooldown');
+// Board drawing, in SVG units (see the viewBox in index.html)
+const CELL = 100;
+const GAP = 8;
+const STEP = CELL + GAP;
+const WIDTH = SIZE * STEP - GAP; // whole board
+const RADIUS = 10; // rounded corners
+const RING = 6; // ring around today's cells
+
+// Wood stain for each piece, light to dark like the real puzzle
+const WOODS = [
+  "#c9975e",
+  "#a0603a",
+  "#7c5236",
+  "#b88352",
+  "#5f4130",
+  "#93765b",
+  "#8a4f33",
+  "#a98a69",
+];
+
+const dateInput = document.getElementById("date");
+const countNumber = document.getElementById("count-number");
+const countLabel = document.getElementById("count-label");
+const layer = document.getElementById("layer");
+const hintButton = document.getElementById("hint");
+const otherButton = document.getElementById("other");
+const cooldownText = document.getElementById("cooldown");
 
 let month, day;
 let solutions = [];
@@ -24,12 +41,12 @@ let timer;
 // Today's date as YYYY-MM-DD in local time
 function today() {
   const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 function onDateChange() {
-  const [y, m, d] = dateInput.value.split('-').map(Number);
+  const [y, m, d] = dateInput.value.split("-").map(Number);
   if (!m || !d) return;
 
   month = MONTHS[m - 1];
@@ -42,7 +59,10 @@ function onDateChange() {
 
   countNumber.textContent = solutions.length;
   // e.g. "October 9" or "9. oktober", depending on the browser's locale
-  const date = new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+  const date = new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+  });
   countLabel.textContent = `solutions for ${date}`;
   render();
 }
@@ -79,67 +99,91 @@ function onOther() {
 
 function render() {
   const solution = solutions[solutionIndex] ?? [];
+  const placed = solution.slice(0, hintsShown);
+  const covered = new Set(placed.flatMap((p) => p.cells));
 
-  // Which piece (if any) covers each cell
-  const pieceAt = {};
-  solution.slice(0, hintsShown).forEach((p) => {
-    p.cells.forEach((c) => (pieceAt[c] = p.piece));
+  // Open board cells with their labels. Covered cells are skipped so the
+  // piece edges always sit on the dark frame.
+  const cells = BOARD.flatMap((labels, row) =>
+    labels.map((label, col) => {
+      if (label === null || covered.has(row * SIZE + col)) return "";
+      const x = col * STEP;
+      const y = row * STEP;
+      const isTarget = label === month || label === day;
+      const cls = isTarget ? " target" : "";
+      // SVG strokes straddle the edge, so shrink today's cells by half
+      // the ring width to keep the ring inside the cell
+      const inset = isTarget ? RING / 2 : 0;
+      const size = CELL - 2 * inset;
+      return `<rect class="cell${cls}" x="${x + inset}" y="${y + inset}" width="${size}" height="${size}" rx="${RADIUS - inset}" stroke-width="${RING}"/>
+        <text class="label${cls}" x="${x + CELL / 2}" y="${y + CELL / 2}">${label}</text>`;
+    }),
+  );
+
+  // Placed pieces: wood colour, then grain on top. Alternate the grain
+  // direction so neighbouring pieces stand apart. The newest one drops in.
+  const pieces = placed.map((p, n) => {
+    const d = piecePath(p.cells);
+    const grain = p.piece % 2 ? "grain-v" : "grain-h";
+    return `<g class="piece${n === placed.length - 1 ? " new" : ""}">
+      <path d="${d}" fill="${WOODS[p.piece]}"/>
+      <path d="${d}" fill="url(#${grain})"/>
+    </g>`;
   });
-  const latest = solution[hintsShown - 1]?.piece; // animate the newest piece
 
-  const cells = [];
-  BOARD.flat().forEach((label, i) => {
-    if (label === null) return; // not part of the board
-
-    const cell = document.createElement('div');
-    cells.push(cell);
-    cell.className = 'cell';
-    cell.textContent = label;
-
-    // Grid position, also used to line up the wood grain across cells
-    const row = Math.floor(i / SIZE);
-    const col = i % SIZE;
-    cell.style.gridArea = `${row + 1} / ${col + 1}`;
-    cell.style.setProperty('--row', row);
-    cell.style.setProperty('--col', col);
-
-    if (label === month || label === day) cell.classList.add('target');
-    if (i in pieceAt) {
-      const piece = pieceAt[i];
-      cell.classList.add('covered');
-      cell.style.setProperty('--wood', WOODS[piece]);
-      // Alternate grain direction so neighbouring pieces stand apart
-      cell.style.setProperty('--grain-angle', piece % 2 ? '90deg' : '0deg');
-      if (piece === latest) cell.classList.add('new');
-
-      // Is the neighbour at (row + dr, col + dc) part of the same piece?
-      const same = (dr, dc) => {
-        const r = row + dr;
-        const c = col + dc;
-        return c >= 0 && c < SIZE && pieceAt[r * SIZE + c] === piece;
-      };
-
-      // Join with neighbours of the same piece so it reads as one shape
-      const up = same(-1, 0);
-      const down = same(1, 0);
-      const left = same(0, -1);
-      const right = same(0, 1);
-      cell.classList.toggle('join-up', up);
-      cell.classList.toggle('join-down', down);
-      cell.classList.toggle('join-left', left);
-      cell.classList.toggle('join-right', right);
-
-      // Stretching two ways also fills the gap corner between them. Where
-      // the diagonal cell isn't the same piece, that's an inner corner:
-      // cut it out again with a rounded notch.
-      cell.classList.toggle('inner-tl', up && left && !same(-1, -1));
-      cell.classList.toggle('inner-tr', up && right && !same(-1, 1));
-      cell.classList.toggle('inner-br', down && right && !same(1, 1));
-      cell.classList.toggle('inner-bl', down && left && !same(1, -1));
-    }
-  });
-  boardEl.replaceChildren(...cells, logo);
+  layer.innerHTML = cells.join("") + pieces.join("");
   renderControls();
+}
+
+// Outline of a piece as an SVG path with rounded corners
+function piecePath(cells) {
+  const inPiece = new Set(cells);
+
+  // Walk the outline clockwise along the cell sides that don't touch
+  // another cell of the piece. Points are grid corners as [x, y].
+  const next = {};
+  for (const i of cells) {
+    const r = Math.floor(i / SIZE);
+    const c = i % SIZE;
+    const has = (dr, dc) =>
+      c + dc >= 0 && c + dc < SIZE && inPiece.has(i + dr * SIZE + dc);
+    if (!has(-1, 0)) next[[c, r]] = [c + 1, r]; // top side, going right
+    if (!has(0, 1)) next[[c + 1, r]] = [c + 1, r + 1]; // right side, going down
+    if (!has(1, 0)) next[[c + 1, r + 1]] = [c, r + 1]; // bottom side, going left
+    if (!has(0, -1)) next[[c, r + 1]] = [c, r]; // left side, going up
+  }
+  // Follow the sides from point to point; there's one point per side
+  const points = [];
+  let p = Object.values(next)[0];
+  for (let k = 0; k < Object.keys(next).length; k++) {
+    points.push(p);
+    p = next[p];
+  }
+
+  // Keep the turns, moved to the cell edges: right and bottom sides end
+  // a gap before the next grid line
+  const corners = [];
+  points.forEach(([x, y], k) => {
+    const [px, py] = points.at(k - 1);
+    const [nx, ny] = points.at((k + 1) % points.length);
+    if (x - px === nx - x && y - py === ny - y) return; // straight on, not a corner
+
+    const down = py < y || ny > y; // going down = right side
+    const left = px > x || nx < x; // going left = bottom side
+    corners.push([x * STEP - (down ? GAP : 0), y * STEP - (left ? GAP : 0)]);
+  });
+
+  // Round each corner: stop RADIUS before it, curve through it
+  const toward = ([ax, ay], [bx, by]) => [
+    ax + Math.sign(bx - ax) * RADIUS,
+    ay + Math.sign(by - ay) * RADIUS,
+  ];
+  const d = corners.map((corner, k) => {
+    const before = toward(corner, corners.at(k - 1));
+    const after = toward(corner, corners.at((k + 1) % corners.length));
+    return `${k ? "L" : "M"}${before} Q${corner} ${after}`;
+  });
+  return d.join(" ") + " Z";
 }
 
 function renderControls() {
@@ -156,8 +200,15 @@ function renderControls() {
   cooldownText.textContent = `Try to solve it yourself. Wait ${cooldown} s before next hint.`;
 }
 
+// Size the board, and put the logo in the empty end of the last row
+const board = document.getElementById("board");
+const logo = document.getElementById("logo");
+board.setAttribute("viewBox", `0 0 ${WIDTH} ${WIDTH}`);
+logo.setAttribute("x", WIDTH);
+logo.setAttribute("y", (SIZE - 1) * STEP + CELL / 2);
+
 dateInput.value = today();
-dateInput.addEventListener('change', onDateChange);
-hintButton.addEventListener('click', onHint);
-otherButton.addEventListener('click', onOther);
+dateInput.addEventListener("change", onDateChange);
+hintButton.addEventListener("click", onHint);
+otherButton.addEventListener("click", onOther);
 onDateChange();
