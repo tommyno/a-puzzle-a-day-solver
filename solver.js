@@ -1,3 +1,17 @@
+// Solver for DragonFjord's A-Puzzle-A-Day.
+//
+// The puzzle is an exact cover problem: every open cell must be covered
+// exactly once, using each piece exactly once. It's solved with plain
+// backtracking (a depth-first search):
+//   1. Precompute every placement of every piece: all rotations and
+//      flips, at every position where it fits on the board.
+//   2. Find the first empty cell (top-left to bottom-right) and try each
+//      unused piece placement that covers it, then repeat for the next
+//      empty cell. When nothing fits, undo the last piece and try the next.
+// Always filling the first empty cell means each layout is found only
+// once. It's the same idea as Knuth's Algorithm X, without Dancing Links;
+// the board is small enough that every solution is found in milliseconds.
+
 // Board layout as a 7x7 grid. null = not part of the board.
 export const BOARD = [
   ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', null],
