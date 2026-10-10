@@ -34,6 +34,7 @@ const cooldownText = document.getElementById("cooldown");
 let month, day;
 let solutions = [];
 let solutionIndex = 0; // which solution the hints come from
+let hintOrder = []; // the solution's pieces, shuffled so hints come in random order
 let hintsShown = 0;
 let cooldown = 0; // seconds left before the next hint
 let timer;
@@ -54,8 +55,7 @@ function onDateChange() {
 
   solutions = solve(month, day);
   solutionIndex = 0;
-  hintsShown = 0;
-  stopCooldown();
+  resetHints();
 
   countNumber.textContent = solutions.length;
   // e.g. "October 9" or "9. oktober", depending on the browser's locale
@@ -92,14 +92,31 @@ function stopCooldown() {
 // Switch to the next solution (wraps around) and clear the board
 function onOther() {
   solutionIndex = (solutionIndex + 1) % solutions.length;
-  hintsShown = 0;
-  stopCooldown();
+  resetHints();
   render();
 }
 
+// Start over with no pieces shown, in a new random order. The solver
+// finds pieces top-left first, so without shuffling the first hint
+// would always be in the top-left corner.
+function resetHints() {
+  hintOrder = shuffle(solutions[solutionIndex] ?? []);
+  hintsShown = 0;
+  stopCooldown();
+}
+
+// Shuffled copy of a list (Fisher–Yates)
+function shuffle(list) {
+  const copy = [...list];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 function render() {
-  const solution = solutions[solutionIndex] ?? [];
-  const placed = solution.slice(0, hintsShown);
+  const placed = hintOrder.slice(0, hintsShown);
   const covered = new Set(placed.flatMap((p) => p.cells));
 
   // Open board cells with their labels. Covered cells are skipped so the
@@ -187,8 +204,7 @@ function piecePath(cells) {
 }
 
 function renderControls() {
-  const solution = solutions[solutionIndex] ?? [];
-  const allShown = hintsShown >= solution.length;
+  const allShown = hintsShown >= hintOrder.length;
 
   hintButton.disabled = allShown || cooldown > 0;
   hintButton.textContent = `Hint ${hintsShown}/${PIECES.length}`;
