@@ -78,7 +78,7 @@ input[type='date'] {
   user-select: none;
 }
 
-.frame {
+#frame {
   fill: var(--frame);
 }
 
@@ -87,8 +87,8 @@ input[type='date'] {
 }
 
 /* The month and day to leave uncovered */
-.cell.target {
-  fill: #f7ead0;
+.cell-target {
+  fill: var(--bg);
   stroke: var(--mark);
 }
 
@@ -100,13 +100,13 @@ input[type='date'] {
   dominant-baseline: central;
 }
 
-.label.target {
+.label-target {
   font-weight: 800;
   fill: var(--frame);
 }
 
 /* Newly placed piece drops in */
-.piece.new {
+.piece-new {
   animation: drop 0.25s ease-out;
 }
 
@@ -118,7 +118,7 @@ input[type='date'] {
 }
 
 /* Name engraved in the empty corner, like on the real board */
-.logo {
+#logo {
   font-family: var(--serif);
   font-size: 33px;
   font-weight: 700;
@@ -128,25 +128,10 @@ input[type='date'] {
   dominant-baseline: central;
 }
 
-/* Buttons */
+/* Hint and solution buttons side by side */
 .buttons {
   display: flex;
   gap: 10px;
-}
-
-footer {
-  padding: 0 16px 24px;
-  text-align: center;
-  font-size: 14px;
-}
-
-footer a {
-  color: inherit;
-}
-
-#cooldown {
-  margin: 0;
-  text-align: center;
 }
 
 button {
@@ -163,7 +148,7 @@ button {
   transition: transform 0.1s, opacity 0.2s;
 }
 
-button.primary {
+#hint {
   background: var(--frame);
   border-color: var(--frame);
   color: var(--gold);
@@ -176,4 +161,27 @@ button:active:not(:disabled) {
 button:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+#cooldown {
+  margin: 0;
+  text-align: center;
+}
+
+/* Fixed width with even digits so the line doesn't shift as it counts down */
+.cooldown-seconds {
+  display: inline-block;
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+footer {
+  padding: 0 16px 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+a {
+  color: inherit;
 }

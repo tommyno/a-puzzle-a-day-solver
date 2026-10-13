@@ -1,6 +1,8 @@
 # A-Puzzle-A-Day Solver
 
-Pick a date to see how many solutions it has, then get hints one piece at a time for <a href="https://www.dragonfjord.com">DragonFjord's A-Puzzle-A-Day</a>.
+Stuck on todays puzzle? Pick a date to see how many solutions it has, then reveal hints one piece at a time.
+
+Based on the excellent wooden puzzle created by <a href="https://www.dragonfjord.com">DragonFjord</a>.
 
 ## Demo
 
@@ -8,6 +10,6 @@ https://a-puzzle-a-day-solver.vercel.app
 
 ## Development
 
-Plain HTML, CSS and JavaScript with no build step. The solver is in `scripts/solver.js`.
+Plain HTML, CSS and JavaScript with no build step. The solver is in `scripts/solver.js`
 
-Run locally with `npx serve`.
+Run locally with `npx serve`
