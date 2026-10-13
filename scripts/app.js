@@ -1,4 +1,4 @@
-import { BOARD, PIECES, SIZE, solve } from './solver.js';
+import { BOARD, PIECES, SIZE, solve } from "./solver.js";
 
 const COOLDOWN = 60; // seconds to wait between hints
 const MONTHS = BOARD.slice(0, 2).flat().filter(Boolean); // 'Jan' … 'Dec'
@@ -15,25 +15,25 @@ const FRAME_RADIUS = 30; // frame corners
 
 // Wood stain for each piece, light to dark like the real puzzle
 const WOODS = [
-  '#c9975e',
-  '#a0603a',
-  '#7c5236',
-  '#b88352',
-  '#5f4130',
-  '#93765b',
-  '#8a4f33',
-  '#a98a69',
+  "#c9975e",
+  "#a0603a",
+  "#7c5236",
+  "#b88352",
+  "#5f4130",
+  "#93765b",
+  "#8a4f33",
+  "#a98a69",
 ];
 
-const dateInput = document.getElementById('date');
-const count = document.getElementById('count');
-const board = document.getElementById('board');
-const frame = document.getElementById('frame');
-const layer = document.getElementById('layer');
-const logo = document.getElementById('logo');
-const hintButton = document.getElementById('hint');
-const nextSolutionButton = document.getElementById('next-solution');
-const cooldownText = document.getElementById('cooldown');
+const dateInput = document.getElementById("date");
+const count = document.getElementById("count");
+const board = document.getElementById("board");
+const frame = document.getElementById("frame");
+const layer = document.getElementById("layer");
+const logo = document.getElementById("logo");
+const hintButton = document.getElementById("hint");
+const nextSolutionButton = document.getElementById("next-solution");
+const cooldownText = document.getElementById("cooldown");
 
 let month, day;
 let solutions = [];
@@ -46,12 +46,12 @@ let timer;
 // Today's date as YYYY-MM-DD in local time
 function today() {
   const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 function onDateChange() {
-  const [, m, d] = dateInput.value.split('-').map(Number);
+  const [, m, d] = dateInput.value.split("-").map(Number);
   if (!m || !d) return;
 
   month = MONTHS[m - 1];
@@ -121,7 +121,7 @@ function render() {
   // piece edges always sit on the dark frame.
   const cells = BOARD.flatMap((labels, row) =>
     labels.map((label, col) => {
-      if (label === null || covered.has(row * SIZE + col)) return '';
+      if (label === null || covered.has(row * SIZE + col)) return "";
       const x = col * STEP;
       const y = row * STEP;
       const isTarget = label === month || label === day;
@@ -129,8 +129,8 @@ function render() {
       // the ring width to keep the ring inside the cell
       const inset = isTarget ? RING / 2 : 0;
       const size = CELL - 2 * inset;
-      return `<rect class="cell${isTarget ? ' cell-target' : ''}" x="${x + inset}" y="${y + inset}" width="${size}" height="${size}" rx="${RADIUS - inset}" stroke-width="${RING}"/>
-        <text class="label${isTarget ? ' label-target' : ''}" x="${x + CELL / 2}" y="${y + CELL / 2}">${label}</text>`;
+      return `<rect class="cell${isTarget ? " cell-target" : ""}" x="${x + inset}" y="${y + inset}" width="${size}" height="${size}" rx="${RADIUS - inset}" stroke-width="${RING}"/>
+        <text class="label${isTarget ? " label-target" : ""}" x="${x + CELL / 2}" y="${y + CELL / 2}">${label}</text>`;
     }),
   );
 
@@ -138,14 +138,14 @@ function render() {
   // direction so neighbouring pieces stand apart. The newest one drops in.
   const pieces = placed.map((p, n) => {
     const d = piecePath(p.cells);
-    const grain = p.piece % 2 ? 'grain-v' : 'grain-h';
-    return `<g class="piece${n === placed.length - 1 ? ' piece-new' : ''}">
+    const grain = p.piece % 2 ? "grain-v" : "grain-h";
+    return `<g class="piece${n === placed.length - 1 ? " piece-new" : ""}">
       <path d="${d}" fill="${WOODS[p.piece]}"/>
       <path d="${d}" fill="url(#${grain})"/>
     </g>`;
   });
 
-  layer.innerHTML = cells.join('') + pieces.join('');
+  layer.innerHTML = cells.join("") + pieces.join("");
   renderControls();
 }
 
@@ -195,9 +195,9 @@ function piecePath(cells) {
   const d = corners.map((corner, k) => {
     const before = toward(corner, corners.at(k - 1));
     const after = toward(corner, corners.at((k + 1) % corners.length));
-    return `${k ? 'L' : 'M'}${before} Q${corner} ${after}`;
+    return `${k ? "L" : "M"}${before} Q${corner} ${after}`;
   });
-  return d.join(' ') + ' Z';
+  return d.join(" ") + " Z";
 }
 
 function renderControls() {
@@ -210,7 +210,7 @@ function renderControls() {
   nextSolutionButton.textContent = `Solution ${solutionIndex + 1}/${solutions.length} ↻`;
 
   cooldownText.hidden = allShown || cooldown <= 0;
-  cooldownText.innerHTML = `Wait <span class="cooldown-seconds">${cooldown}</span> s before next hint.<br>Try to solve it yourself.`;
+  cooldownText.innerHTML = `Wait <span class="cooldown-seconds">${cooldown}</span> seconds before next hint.<br />Try to solve it yourself!`;
 }
 
 // Outline of the frame. The top right is cut away beside the month rows,
@@ -238,20 +238,20 @@ function framePath() {
     arc(left, bottom - R),
     `V${top + R}`,
     arc(left + R, top),
-    'Z',
-  ].join(' ');
+    "Z",
+  ].join(" ");
 }
 
 // Size the board with room for the frame, draw the frame, and put the
 // logo in the empty end of the last row
 const OUTER = WIDTH + 2 * FRAME;
-board.setAttribute('viewBox', `${-FRAME} ${-FRAME} ${OUTER} ${OUTER}`);
-frame.setAttribute('d', framePath());
-logo.setAttribute('x', WIDTH);
-logo.setAttribute('y', (SIZE - 1) * STEP + CELL / 2);
+board.setAttribute("viewBox", `${-FRAME} ${-FRAME} ${OUTER} ${OUTER}`);
+frame.setAttribute("d", framePath());
+logo.setAttribute("x", WIDTH);
+logo.setAttribute("y", (SIZE - 1) * STEP + CELL / 2);
 
 dateInput.value = today();
-dateInput.addEventListener('change', onDateChange);
-hintButton.addEventListener('click', onHint);
-nextSolutionButton.addEventListener('click', onNextSolution);
+dateInput.addEventListener("change", onDateChange);
+hintButton.addEventListener("click", onHint);
+nextSolutionButton.addEventListener("click", onNextSolution);
 onDateChange();

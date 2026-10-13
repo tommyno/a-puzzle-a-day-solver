@@ -157,13 +157,11 @@ button:disabled {
 #cooldown {
   margin: 0;
   text-align: center;
+  line-height: 1.5;
 }
 
 /* Fixed width with even digits so the line doesn't shift as it counts down */
 .cooldown-seconds {
-  display: inline-block;
-  min-width: 2ch;
-  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 

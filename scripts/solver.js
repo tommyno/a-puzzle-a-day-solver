@@ -14,27 +14,27 @@
 
 // Board layout as a 7x7 grid. null = not part of the board.
 export const BOARD = [
-  ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', null],
-  ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', null],
-  ['1', '2', '3', '4', '5', '6', '7'],
-  ['8', '9', '10', '11', '12', '13', '14'],
-  ['15', '16', '17', '18', '19', '20', '21'],
-  ['22', '23', '24', '25', '26', '27', '28'],
-  ['29', '30', '31', null, null, null, null],
+  ["Jan", "Feb", "Mar", "Apr", "May", "Jun", null],
+  ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", null],
+  ["1", "2", "3", "4", "5", "6", "7"],
+  ["8", "9", "10", "11", "12", "13", "14"],
+  ["15", "16", "17", "18", "19", "20", "21"],
+  ["22", "23", "24", "25", "26", "27", "28"],
+  ["29", "30", "31", null, null, null, null],
 ];
 
 export const SIZE = 7;
 
 // The 8 pieces. '#' = filled square.
 export const PIECES = [
-  ['###', '###'],          // Rectangle
-  ['###', '##.'],          // P
-  ['###', '#.#'],          // U
-  ['###', '#..', '#..'],   // V
-  ['##.', '.#.', '.##'],   // Z
-  ['####', '#...'],        // L
-  ['####', '.#..'],        // Y
-  ['###.', '..##'],        // N
+  ["###", "###"], // Rectangle
+  ["###", "##."], // P
+  ["###", "#.#"], // U
+  ["###", "#..", "#.."], // V
+  ["##.", ".#.", ".##"], // Z
+  ["####", "#..."], // L
+  ["####", ".#.."], // Y
+  ["###.", "..##"], // N
 ];
 
 // Turn a shape like ['##', '#.'] into a list of [row, col] squares.
@@ -42,7 +42,7 @@ function toSquares(shape) {
   const squares = [];
   shape.forEach((line, r) => {
     [...line].forEach((ch, c) => {
-      if (ch === '#') squares.push([r, c]);
+      if (ch === "#") squares.push([r, c]);
     });
   });
   return squares;
@@ -81,8 +81,14 @@ function allPlacements() {
       for (let r0 = 0; r0 < SIZE; r0++) {
         for (let c0 = 0; c0 < SIZE; c0++) {
           const cells = squares.map(([r, c]) => [r + r0, c + c0]);
-          const fits = cells.every(([r, c]) => r < SIZE && c < SIZE && BOARD[r][c] !== null);
-          if (fits) placements.push({ piece, cells: cells.map(([r, c]) => r * SIZE + c) });
+          const fits = cells.every(
+            ([r, c]) => r < SIZE && c < SIZE && BOARD[r][c] !== null,
+          );
+          if (fits)
+            placements.push({
+              piece,
+              cells: cells.map(([r, c]) => r * SIZE + c),
+            });
         }
       }
     }
@@ -102,7 +108,9 @@ for (const p of allPlacements()) {
 // Each solution is a list of 8 placements.
 export function solve(month, day) {
   // Off-board cells and the date cells count as already filled
-  const filled = BOARD.flat().map((label) => label === null || label === month || label === day);
+  const filled = BOARD.flat().map(
+    (label) => label === null || label === month || label === day,
+  );
 
   const used = PIECES.map(() => false);
   const current = [];
