@@ -26,8 +26,7 @@ const WOODS = [
 ];
 
 const dateInput = document.getElementById('date');
-const countNumber = document.getElementById('count-number');
-const countLabel = document.getElementById('count-label');
+const count = document.getElementById('count');
 const board = document.getElementById('board');
 const frame = document.getElementById('frame');
 const layer = document.getElementById('layer');
@@ -52,7 +51,7 @@ function today() {
 }
 
 function onDateChange() {
-  const [y, m, d] = dateInput.value.split('-').map(Number);
+  const [, m, d] = dateInput.value.split('-').map(Number);
   if (!m || !d) return;
 
   month = MONTHS[m - 1];
@@ -62,13 +61,7 @@ function onDateChange() {
   solutionIndex = 0;
   resetHints();
 
-  countNumber.textContent = solutions.length;
-  // e.g. "October 9" or "9. oktober", depending on the browser's locale
-  const date = new Date(y, m - 1, d).toLocaleDateString(undefined, {
-    month: 'long',
-    day: 'numeric',
-  });
-  countLabel.textContent = `solutions for ${date}`;
+  count.textContent = `${solutions.length} solutions`;
   render();
 }
 
