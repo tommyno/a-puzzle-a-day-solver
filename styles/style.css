@@ -69,19 +69,17 @@ input[type='date'] {
   font-size: 14px;
 }
 
-/* Board: dark wooden frame around an SVG drawn by app.js.
+/* Board: an SVG drawn by app.js, frame included.
    Sizes inside the SVG are in board units (a cell is 100 wide). */
-.frame {
-  padding: 14px;
-  background: var(--frame);
-  border-radius: 16px;
-}
-
 #board {
   display: block;
   width: 100%;
   aspect-ratio: 1;
   user-select: none;
+}
+
+.frame {
+  fill: var(--frame);
 }
 
 .cell {

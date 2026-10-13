@@ -10,6 +10,8 @@ const STEP = CELL + GAP;
 const WIDTH = SIZE * STEP - GAP; // whole board
 const RADIUS = 10; // rounded corners
 const RING = 6; // ring around today's cells
+const FRAME = 26; // frame thickness
+const FRAME_RADIUS = 30; // frame corners
 
 // Wood stain for each piece, light to dark like the real puzzle
 const WOODS = [
@@ -216,10 +218,42 @@ function renderControls() {
   cooldownText.textContent = `Try to solve it yourself. Wait ${cooldown} s before next hint.`;
 }
 
-// Size the board, and put the logo in the empty end of the last row
+// Outline of the frame. The top right is cut away beside the month rows,
+// so the frame wraps around the end of each month row like on the real board.
+function framePath() {
+  const R = FRAME_RADIUS;
+  const left = -FRAME;
+  const top = -FRAME;
+  const right = WIDTH + FRAME;
+  const bottom = WIDTH + FRAME;
+  const notchX = (SIZE - 2) * STEP + CELL + FRAME; // just past Jun and Dec
+  const notchY = 2 * STEP - FRAME; // just above 7
+  const arc = (x, y, sweep = 1) => `A${R} ${R} 0 0 ${sweep} ${x} ${y}`;
+  return [
+    `M${left + R} ${top}`,
+    `H${notchX - R}`,
+    arc(notchX, top + R),
+    `V${notchY - R}`,
+    arc(notchX + R, notchY, 0), // inside corner, curving the other way
+    `H${right - R}`,
+    arc(right, notchY + R),
+    `V${bottom - R}`,
+    arc(right - R, bottom),
+    `H${left + R}`,
+    arc(left, bottom - R),
+    `V${top + R}`,
+    arc(left + R, top),
+    "Z",
+  ].join(" ");
+}
+
+// Size the board with room for the frame, draw the frame, and put the
+// logo in the empty end of the last row
 const board = document.getElementById("board");
 const logo = document.getElementById("logo");
-board.setAttribute("viewBox", `0 0 ${WIDTH} ${WIDTH}`);
+const OUTER = WIDTH + 2 * FRAME;
+board.setAttribute("viewBox", `${-FRAME} ${-FRAME} ${OUTER} ${OUTER}`);
+document.getElementById("frame").setAttribute("d", framePath());
 logo.setAttribute("x", WIDTH);
 logo.setAttribute("y", (SIZE - 1) * STEP + CELL / 2);
 
