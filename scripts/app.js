@@ -1,6 +1,6 @@
 import { BOARD, PIECES, SIZE, solve } from "./solver.js";
 
-const COOLDOWN = 60; // seconds to wait between hints
+const COOLDOWN = 20; // seconds to wait between hints
 const MONTHS = BOARD.slice(0, 2).flat().filter(Boolean); // 'Jan' … 'Dec'
 
 // Board drawing, in SVG units (see the viewBox set at the bottom)
